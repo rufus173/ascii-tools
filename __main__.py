@@ -23,11 +23,12 @@ class FrameStorage():
 		self.time_at_next_frame = 0
 	def convert_and_play(self,image_storage,target_x,target_y,fps):
 		for image in image_storage:
-			self.time_at_next_frame = self.time_at_next_frame+(1/8)
+			start_time = time.time()
 			frame = self.image_to_frame(image,target_x,target_y)
 			print(frame)
 			while self.time_at_next_frame > time.time():
 				pass
+			self.time_at_next_frame = start_time+(1/fps)
 	def image_to_frame(self,image,target_x,target_y):
 		frame = ""
 		# preprocessing
@@ -54,4 +55,4 @@ class FrameStorage():
 print("loading...")
 images = ImageStorage("images")
 frames = FrameStorage(images,50,50)
-frames.convert_and_play(images,50,50,8)
+frames.convert_and_play(images,50,50,16)
