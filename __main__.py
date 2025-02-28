@@ -1,6 +1,8 @@
-from PIL import Image
+import shutil
+from image_to_ascii import image_to_ascii
 import time
 from pathlib import Path
+from sys import argv
 class ImageStorage():
 	def __init__(self,directory):
 		self.image_dir = Path(directory)
@@ -18,41 +20,23 @@ class ImageStorage():
 			yield image
 
 class FrameStorage():
-	def __init__(self,image_storage,target_x,target_y):
+	def __init__(self,image_storage):
 		self.frame_buffer = []
 		self.time_at_next_frame = 0
-	def convert_and_play(self,image_storage,target_x,target_y,fps):
+	def convert_and_play(self,image_storage,target_width,target_height,fps):
 		for image in image_storage:
 			start_time = time.time()
-			frame = self.image_to_frame(image,target_x,target_y)
-			print(frame)
+			frame = image_to_ascii(image,target_width,target_height)
+			print("\033[2J")
+			print(frame.strip("\n"))
 			while self.time_at_next_frame > time.time():
 				pass
 			self.time_at_next_frame = start_time+(1/fps)
-	def image_to_frame(self,image,target_x,target_y):
-		frame = ""
-		# preprocessing
-		image = Image.open(image)
-		image = image.convert("L") # greyscale
-		image = image.resize((target_x,target_y))
-		# build the frame
-		for y in range(target_x):
-			line = ""
-			for x in range(target_y):
-				pixel = image.getpixel((x,y))
-				brightness = pixel/255 # between 0 and 1
-				if brightness > 0.5:
-					line += "#"
-				else:
-					line += " "
-			frame += line + "\n"
-			
-
-		#image.save("res.png","PNG")
-		image.close()
-		return frame
+# change directory
+print(argv[0])
 # load the images (sampled at 8 fps)
 print("loading...")
-images = ImageStorage("images")
-frames = FrameStorage(images,50,50)
-frames.convert_and_play(images,50,50,16)
+term_width, term_height = shutil.get_terminal_size((80,30))
+images = ImageStorage(Path(argv[0])/Path("images"))
+frames = FrameStorage(images)
+frames.convert_and_play(images,term_width,term_height,16)
