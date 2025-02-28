@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "generating frames..."
+ffmpeg -r 8 -i bad-apple.mp4 images/%d.png
+echo "done"
