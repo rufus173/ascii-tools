@@ -21,7 +21,7 @@ class ImageStorage():
 			yield image
 
 class FrameStorage():
-	max_threads = 6
+	max_threads = 3
 	def __init__(self,image_storage):
 		self.converted_buffer = []
 		self.converted_buffer_lock = Lock()
@@ -68,7 +68,7 @@ class FrameStorage():
 			frame = self.converted_buffer.pop(0)
 
 			#display
-			print("\033[2J")
+			print("\033[2J") #clear
 			print(frame.strip("\n"))
 
 			# chill untill we have to display the next frame
