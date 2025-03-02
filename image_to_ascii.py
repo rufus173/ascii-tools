@@ -40,5 +40,11 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		print("please provide the name of the file")
 		quit()
-	term_width, term_height = shutil.get_terminal_size((80,30))
-	print(image_to_ascii(sys.argv[1],int(term_width/1.5),term_height,contrast=50))
+	if len(sys.argv) < 4:
+		term_width, term_height = shutil.get_terminal_size((80,30))
+		image_width = int(term_width/1.5)
+		image_height = term_height
+	else:
+		image_width = int(sys.argv[2])
+		image_height = int(sys.argv[3])
+	print(image_to_ascii(sys.argv[1],image_width,image_height,contrast=50))
