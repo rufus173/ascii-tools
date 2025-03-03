@@ -1,5 +1,7 @@
 from PIL import Image
 from pathlib import Path
+def colour_to_escape_code(r,g,b):
+	return f"\033[38;2;{r};{g};{b}m"
 def brightness_to_char(brightness):
 	#darkest_to_brightest = ["#","0","O","x","*","?",">","~","."," "]
 	darkest_to_brightest = list("$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`\'. ")
@@ -15,21 +17,33 @@ def change_contrast(img, level):
         return 128 + factor * (c - 128)
     return img.point(contrast)
 
-def image_to_ascii(image_path,target_width,target_height,contrast=0):
+def image_to_ascii(image_path,target_width,target_height,contrast=0,colour=False):
 	frame = ""
 	# preprocessing
 	image = Image.open(Path(image_path))
+	if colour:
+		rgb_image = image.convert("RGB")
 	image = image.convert("L") # greyscale
-	image = image.resize((target_width,target_height))
 	if contrast != 0:
 		image = change_contrast(image,contrast)
+	image = image.resize((target_width,target_height))
+	if colour:
+		rgb_image = rgb_image.resize((target_width,target_height))
 	# build the frame
 	for y in range(image.height):
 		line = ""
 		for x in range(image.width):
 			pixel = image.getpixel((x,y))
 			brightness = pixel/255 # between 0 and 1
-			line += brightness_to_char(brightness)
+			if colour:
+				r,g,b = rgb_image.getpixel((x,y))
+				line += colour_to_escape_code(r,g,b)
+				line += brightness_to_char(brightness)
+				line += "\033[39m"
+
+			else:
+				line += brightness_to_char(brightness)
+				
 		frame += line + "\n"
 	#image.save("/tmp/out.png","PNG")
 	image.close()
